@@ -1,0 +1,133 @@
+---
+title: "Manipulation de Données avec R"
+author: "Moussa DEME"
+date: "2024-04-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Definir le repertoire de travail
+setwd("C:/Projects/DataScience/R/DataManipulation") 
+```
+
+## Introduction
+
+Ceci est un TP de manipulation de données avec R. 
+
+## Données
+
+### Chargement des données
+
+```{r}
+clients <- read.csv(file="./data/table_customer_profile.csv", sep = ";")
+```
+
+```{r}
+head(clients)
+```
+La table de profile des clients a été chargée avec succès. Par contre, nous remarquons un problème d'encodage pour plusieurs variables comme *EP_STATUS* , *EP_NACE_NAME* etc. Le problème vient du fait la valeur par defaut du parametre fileEncoding de la fonction read.csv ne correspond pas à celle de notre jeu de données. Voyons voir l'encodage de notre fichier ci dessous.
+
+```{r}
+require('readr')
+
+guess_encoding(file="./data/table_customer_profile.csv", n_max = 1000)
+```
+Avec la fonction *guess_encoding* de la librairie *readr*, nous constatons que l'encodage de notre fichier est vraisemblablement du *ISO-8859-1*. Réchargeons donc le jeu de données en assignant la valeur trouvée au parametre *fileEncoding* de la fonction read.csv. 
+
+```{r}
+clients <- read.csv(file="./data/table_customer_profile.csv", sep = ";",fileEncoding = "ISO-8859-1")
+```
+
+```{r}
+head(clients)
+```
+Bingo!! On voit que les caractères avec accent ont été correctement lus et chargés! Nous confirmons cela encore une fois avec la fonction *View* de R qui montre un plus gros échantillon des données que head.
+
+```{r}
+View(clients)
+```
+
+# 5 premières lines des données
+
+```{r}
+head(clients, 5)
+```
+# 5 dernieres lignes des données
+
+```{r}
+tail(clients,5)
+```
+
+# Structure des données
+
+```{r}
+str(clients)
+```
+# Nombre de lignes
+
+```{r}
+nrow(clients)
+```
+# Nombre de colonnes
+
+```{r}
+ncol(clients)
+```
+# Nombres de lignes et de colonnes avec la fonction dim
+
+
+```{r}
+dim(clients)
+```
+# Noms des colonnes
+
+```{r}
+noms_variables <- colnames(clients)
+noms_variables
+```
+# Description Rapide de jeu de données avec Summary
+
+```{r}
+summary(clients)
+```
+Nous observons que la fonction summary decrit brievement les variables quantitatives en calculant, la mediane, la moyenne, le min, le max, etc. Par contre rien d'interessants n'est sorti pour les varaibles qualitatives. Cela est due au fait que la fonction s'attend a ce que ces variables soient de types *factor*. Or actuellement elles sont de types char. Nous allons alors utiliser la fonction *as.data.frame* qui convertira toutes les variables qualtitatives en factor avec les bons paramètres. 
+
+```{r}
+clients <- as.data.frame(unclass(clients),stringsAsFactors=TRUE)
+```
+
+```{r}
+summary(clients)
+```
+
+Yess! Nous voyons bien que toutes les variables qualitatives sont desormais de type factor et ainsi nous avons leurs statistiques descriptes.
+
+# Les modalités d'une variable qualitative
+
+```{r}
+unique(clients$EP_FLEET_CATEGORY)
+```
+
+# Nombre de valeurs manquqntes dans le jeu de données
+
+```{r}
+colSums(is.na(clients))
+```
+On voit que nous avons aucune valeur manquante.
+
+
+# Stats sur la repartition des clients par ville
+
+```{r}
+statBrut_ville = table(clients$EP_CITY)
+statBrut_ville
+```
+```{r}
+prop.table(statBrut_ville)
+```
+
+
